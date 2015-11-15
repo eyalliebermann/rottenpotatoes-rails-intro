@@ -12,16 +12,42 @@ class MoviesController < ApplicationController
   end
 
   def index
-    session[:sort] = @sort = params[:sort] || session[:sort]
-    session[:rating] = @selected = (params[:ratings] && params[:ratings].keys) || session[:rating]  || Movie.all_ratings
+    @sort = params[:sort]
+    if !@sort
+      @sort= session[:sort]
+      should_redirect = !!@sort && @sort.length>0
+    end
+    session[:sort] = @sort
+    
+    
+    if (params[:ratings] && params[:ratings].keys)
+      @selected=params[:ratings] 
+    end
+    if !@selected
+      @selected= session[:selected] ||all_ratings_hash
+      should_redirect |= !!@selected && @selected.length>0
+    end
+    session[:selected] = @selected 
+
+   redirect_to movies_path( {:sort => @sort, :ratings => @selected})  if should_redirect
     
     @movies = Movie.all
     
-    @movies.where!({:rating =>  @selected })
+    @movies.where!({:rating =>  @selected.keys })
     @movies.order!(@sort) if @sort
     
+
     @all_ratings=Movie.all_ratings
   end
+  
+  def all_ratings_hash
+    hash = Hash.new
+    Movie.all_ratings do |item|
+      hash[item]=1
+    end
+    hash
+  end
+    
 
   def new
     # default: render 'new' template
