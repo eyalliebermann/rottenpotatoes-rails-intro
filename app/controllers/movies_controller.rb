@@ -23,14 +23,18 @@ class MoviesController < ApplicationController
     if (params[:ratings] && params[:ratings].keys)
       @selected=params[:ratings] 
     end
+    
     if !@selected
-      @selected= session[:selected] ||all_ratings_hash
+      @selected= session[:selected] || all_ratings_hash
       should_redirect |= !!@selected && @selected.length>0
     end
     session[:selected] = @selected 
 
-   redirect_to movies_path( {:sort => @sort, :ratings => @selected})  if should_redirect
-    
+    if should_redirect
+      flash.keep
+      redirect_to movies_path( {:sort => @sort, :ratings => @selected})  
+    end
+  
     @movies = Movie.all
     
     @movies.where!({:rating =>  @selected.keys })
