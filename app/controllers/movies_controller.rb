@@ -18,15 +18,16 @@ class MoviesController < ApplicationController
       should_redirect = !!@sort && @sort.length>0
     end
     session[:sort] = @sort
-    
-    
+  
+   # @debug_status='params[:ratings] ==='+(params[:ratings] ||'nil') +'==='+'session==='+((session[:selected] && session[:selected].keys.to_s) || 'nil')+'==='
+
     if (params[:ratings] && params[:ratings].keys)
       @selected=params[:ratings] 
-    end
-    
-    if !@selected
-      @selected= session[:selected] || all_ratings_hash
-      should_redirect |= !!@selected && @selected.length>0
+      #@debug_status+='A'
+    else
+      @selected=   session[:selected] || all_ratings_hash 
+      should_redirect = true if !!@selected && @selected.keys.length>0
+     # @debug_status= @debug_status +'B' + '===' + @selected.to_s + '===' + all_ratings_hash.to_s  + '==='  +Movie.all_ratings.to_s  
     end
     session[:selected] = @selected 
 
@@ -46,7 +47,7 @@ class MoviesController < ApplicationController
   
   def all_ratings_hash
     hash = Hash.new
-    Movie.all_ratings do |item|
+    Movie.all_ratings.each do |item|
       hash[item]=1
     end
     hash

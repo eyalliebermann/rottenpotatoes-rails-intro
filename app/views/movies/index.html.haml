@@ -6,6 +6,8 @@
     = rating
     = check_box_tag "ratings[#{rating}]",1, @selected.include?(rating)
   = submit_tag 'Refresh', :id=>'ratings_submit'
+-# = link_to @debug_status, new_movie_path
+
 %table#movies
   %thead
     %tr
